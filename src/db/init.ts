@@ -2,7 +2,7 @@ import db from './';
 import { FACULTIES } from '../bot/const'
 
 async function init() {
-  const tables = await db.query(`SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE' AND table_catalog='telegram' AND table_schema='public'`);
+  const tables = await db.query(`SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE' AND table_catalog='${process.env.TABLE_CATALOG}' AND table_schema='public'`);
   
   if (tables.rowCount === 0) {
     await db.query(

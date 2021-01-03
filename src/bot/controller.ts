@@ -3,7 +3,7 @@ import { FACULTIES } from './const'
 import { formKeyboard } from './helpers'
 import { getAllFaculties, getUserByTelegramId, updateUser, getFacultyById, createUser } from './repository'
 
-export const bot = new Telegraf(process.env.token as string);
+export const bot = new Telegraf(process.env.TOKEN as string);
 
 function init() {
   bot.use(async (ctx, next) => {
