@@ -1,15 +1,15 @@
 import { Telegraf } from 'telegraf';
-import { FACULTIES } from './const'
-import { formKeyboard } from './helpers'
-import { getAllFaculties, getUserByTelegramId, updateUser, getFacultyById, createUser } from './repository'
+import { FACULTIES } from './const';
+import { formKeyboard } from './helpers';
+import { getAllFaculties, getUserByTelegramId, updateUser, getFacultyById, createUser } from './repository';
 
 export const bot = new Telegraf(process.env.TOKEN as string);
 
 function init() {
   bot.use(async (ctx, next) => {
-    const start = new Date()
-    await next()
-    const ms = +new Date() - +start
+    const start = new Date();
+    await next();
+    const ms = +new Date() - +start;
     const response = JSON.stringify({
       id: ctx.message?.from?.id,
       firstName: ctx.message?.from?.first_name,
@@ -18,8 +18,9 @@ function init() {
       message: ctx.message?.text,
       isSticker: ctx.message?.sticker ? true : false,
       responseTime: `${ms}ms`,
-    })
-  })
+    });
+    console.log(response);
+  });
 
   bot.hears([...FACULTIES], async ctx => {
     let user = await getUserByTelegramId(ctx.message?.from?.id);
@@ -43,10 +44,10 @@ function init() {
           user_id: `${ctx.message.from.id}`,
           faculty: null,
           group: null,
-        }
+        };
         await createUser(user);
-      }
-    }
+      };
+    };
     
     if (user && user.faculty === null) {
         ctx.reply('Выберите ваш факультет', {
@@ -55,11 +56,11 @@ function init() {
           one_time_keyboard: true,
           remove_keyboard: true,
           resize_keyboard: true,
-        }
-      })
-    }
-  })
-}
+        },
+      });
+    };
+  });
+};
 
 const BotController = {init};
 export default BotController;
