@@ -15,7 +15,8 @@ async function init() {
         id SERIAL PRIMARY KEY,
         course VARCHAR(255),
         group_number VARCHAR(255),
-        faculty VARCHAR(255)
+        faculty_id INTEGER,
+        FOREIGN KEY (faculty_id) REFERENCES Faculties (id)
       );
       
       CREATE TABLE Users(

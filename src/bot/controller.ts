@@ -1,8 +1,7 @@
 import { Telegraf } from 'telegraf';
 import { FACULTIES } from './const'
 import { formKeyboard } from './helpers'
-import db from '../db'
-import { FMTDI } from './const'
+import { getAllFaculties, getUserByTelegramId, updateUser, getFacultyById, createUser } from './repository'
 
 export const bot = new Telegraf(process.env.token as string);
 
@@ -20,28 +19,40 @@ function init() {
       isSticker: ctx.message?.sticker ? true : false,
       responseTime: `${ms}ms`,
     })
-    console.log(response)
   })
 
   bot.hears([...FACULTIES], async ctx => {
-    const user = await db.query(`SELECT * FROM users WHERE user_id = '${ctx.message?.from?.id}'`);
-    let allFaculties = await db.query(`SELECT * FROM faculties`);
+    let user = await getUserByTelegramId(ctx.message?.from?.id);
+    let allFaculties = await getAllFaculties();
     allFaculties.rows.map(async faculty => {
       if (faculty['name'] === ctx.message?.text) {
-        await db.query(`UPDATE users SET faculty_id='${faculty['id']}' WHERE user_id='${user.rows[0]['user_id']}'`)
-      }
-    })
-  })
+        if (user) {
+          user.faculty = await getFacultyById(faculty['id']);
+          await updateUser(user);
+        };
+      };
+    });
+  });
 
   bot.on('text', async (ctx) => {
-    let user = await db.query(`SELECT * FROM users WHERE user_id = '${ctx.message?.from?.id}'`);
-    if (user.rowCount === 0) {
-      user = await db.query(`INSERT INTO users(user_id) VALUES('${ctx.message?.from?.id}')`);
+    let user = await getUserByTelegramId(ctx.message?.from?.id);
+    if (!user) {
+      if (ctx && ctx.message && ctx.message.from) {
+        user = {
+          id: null,
+          user_id: `${ctx.message.from.id}`,
+          faculty: null,
+          group: null,
+        }
+        await createUser(user);
+      }
     }
-    if (user.rowCount || user.rows[0]['faculty_id'] === null) {
+    
+    if (user && user.faculty === null) {
         ctx.reply('Выберите ваш факультет', {
         reply_markup: {
           keyboard: formKeyboard(FACULTIES, 2),
+          one_time_keyboard: true,
           remove_keyboard: true,
           resize_keyboard: true,
         }
