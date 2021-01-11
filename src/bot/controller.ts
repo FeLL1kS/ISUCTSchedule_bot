@@ -1,5 +1,6 @@
+import fetch from 'node-fetch';
 import { Telegraf } from 'telegraf';
-import { FACULTIES } from './const';
+import { FACULTIES, ISUCT_SHEDULE_API } from './const';
 import { formKeyboard } from './helpers';
 import { getAllFaculties, getUserByTelegramId, updateUser, getFacultyById, createUser } from './repository';
 
@@ -48,9 +49,9 @@ function init() {
         await createUser(user);
       };
     };
-    
+  
     if (user && user.faculty === null) {
-        ctx.reply('Выберите ваш факультет', {
+      ctx.reply('Выберите ваш факультет', {
         reply_markup: {
           keyboard: formKeyboard(FACULTIES, 2),
           one_time_keyboard: true,
@@ -59,6 +60,17 @@ function init() {
         },
       });
     };
+
+    let response = await fetch(ISUCT_SHEDULE_API);
+
+    if (response.ok) {
+      try {
+        let json = await response.json();
+        ctx.reply('Расписание скоро будет доступно.');
+      } catch {
+        ctx.reply('На данный момент расписание еще не доступно.')
+      }
+    }
   });
 };
 

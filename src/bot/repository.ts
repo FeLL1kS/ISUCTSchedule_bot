@@ -56,3 +56,7 @@ export const getGroupById = async (id: number) => {
 export const getAllFaculties = async () => {
   return await db.query(`SELECT * FROM faculties`);
 };
+
+export const getAllShedule = async () => {
+  return await db.query(`SELECT * FROM shedule WHERE group_id = 1`);
+}
