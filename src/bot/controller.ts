@@ -1,8 +1,9 @@
-import fetch from 'node-fetch';
 import { Telegraf } from 'telegraf';
-import { FACULTIES, ISUCT_SHEDULE_API } from './const';
 import { formKeyboard } from './helpers';
-import { getAllFaculties, getUserByTelegramId, updateUser, getFacultyById, createUser } from './repository';
+import { getAllFaculties, getFacultyByName } from './repositories/facultyRepository';
+import { getAllGroupsByFacultyId, getGroupByCourseAndGroupNumber } from './repositories/groupRepository';
+import { getShedule } from './repositories/lessonRepository';
+import { createUser, getUserByTelegramId, updateUser } from './repositories/userRepository';
 
 export const bot = new Telegraf(process.env.TOKEN as string);
 
@@ -23,25 +24,12 @@ function init() {
     console.log(response);
   });
 
-  bot.hears([...FACULTIES], async ctx => {
-    let user = await getUserByTelegramId(ctx.message?.from?.id);
-    let allFaculties = await getAllFaculties();
-    allFaculties.rows.map(async faculty => {
-      if (faculty['name'] === ctx.message?.text) {
-        if (user) {
-          user.faculty = await getFacultyById(faculty['id']);
-          await updateUser(user);
-        };
-      };
-    });
-  });
-
   bot.on('text', async (ctx) => {
     let user = await getUserByTelegramId(ctx.message?.from?.id);
     if (!user) {
       if (ctx && ctx.message && ctx.message.from) {
         user = {
-          id: null,
+          id: 0,
           user_id: `${ctx.message.from.id}`,
           faculty: null,
           group: null,
@@ -49,28 +37,104 @@ function init() {
         await createUser(user);
       };
     };
+
+    if (user && ctx.message?.text === 'Сменить группу') {
+      user.group = null;
+      await updateUser(user);
+    }
+    
+    if (user && ctx.message?.text === 'Сменить факультет') {
+      user.group = null;
+      user.faculty = null;
+      await updateUser(user);
+    }
   
     if (user && user.faculty === null) {
-      ctx.reply('Выберите ваш факультет', {
+      let faculties = (await getAllFaculties()).rows.map(faculty => faculty['name']);
+
+      if (faculties.indexOf(ctx.message?.text) !== -1) {
+        user.faculty = await getFacultyByName(ctx.message?.text);
+        await updateUser(user);
+      } else {
+        ctx.reply('Выберите ваш факультет', {
+          reply_markup: {
+            keyboard: formKeyboard(faculties, 2),
+            one_time_keyboard: true,
+            remove_keyboard: true,
+            resize_keyboard: true,
+          },
+        });
+        return;
+      }
+    };
+
+    if (user && user.group === null && user.faculty && user.faculty.id && ctx.message?.text) {
+      let groups = (await getAllGroupsByFacultyId(user.faculty.id)).rows.map(group => group['course'] + '-' + group['group_number']);
+      if (groups.indexOf(ctx.message?.text) !== -1) {
+        let [course, groupNumber] = ctx.message.text.split('-');
+        let group = await getGroupByCourseAndGroupNumber(course, groupNumber)
+        user.group = group;
+        await updateUser(user);
+      } else {
+        ctx.reply('Выберите вашу группу', {
+          reply_markup: {
+            keyboard: formKeyboard(groups.sort(), 6),
+            one_time_keyboard: true,
+            remove_keyboard: true,
+            resize_keyboard: true,
+          }
+        });
+        return;
+      }
+    }
+
+    if (user && user.group && user.group.id !== null && ctx.message?.text === 'Расписание') {
+      ctx.reply(await getShedule(user.group?.id), {
         reply_markup: {
-          keyboard: formKeyboard(FACULTIES, 2),
+          keyboard: formKeyboard([
+            'Расписание',
+            'Расписание на завтра',
+            'Сменить группу',
+            'Сменить факультет',
+          ], 2),
           one_time_keyboard: true,
           remove_keyboard: true,
           resize_keyboard: true,
         },
-      });
-    };
-
-    let response = await fetch(ISUCT_SHEDULE_API);
-
-    if (response.ok) {
-      try {
-        let json = await response.json();
-        ctx.reply('Расписание скоро будет доступно.');
-      } catch {
-        ctx.reply('На данный момент расписание еще не доступно.')
-      }
+      })
+      return;
     }
+
+    if (user && user.group && user.group.id !== null &&  ctx.message?.text === 'Расписание на завтра') {
+      ctx.reply(await getShedule(user.group?.id, 1), {
+        reply_markup: {
+          keyboard: formKeyboard([
+            'Расписание',
+            'Расписание на завтра',
+            'Сменить группу',
+            'Сменить факультет',
+          ], 2),
+          one_time_keyboard: true,
+          remove_keyboard: true,
+          resize_keyboard: true,
+        },
+      })
+      return;
+    }
+
+    ctx.reply(`Добро пожаловать. Теперь вы можете удобно просматривать расписание на сегодня (нажав или написав "Расписание"), либо на завтра (нажав или написав "Расписание на завтра").`,{
+      reply_markup: {
+        keyboard: formKeyboard([
+          'Расписание',
+          'Расписание на завтра',
+          'Сменить группу',
+          'Сменить факультет',
+        ], 2),
+        one_time_keyboard: true,
+        remove_keyboard: true,
+        resize_keyboard: true,
+      },
+    })
   });
 };
 

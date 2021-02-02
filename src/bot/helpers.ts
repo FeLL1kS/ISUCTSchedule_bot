@@ -1,5 +1,3 @@
-import { bot } from "./controller";
-
 export const formKeyboard = (data: Array<string>, rowLength: number = 1) => {
   let resultArray: Array<Array<{text: string}>> = [];
   resultArray.push([]);

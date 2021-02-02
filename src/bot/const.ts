@@ -1,13 +1,8 @@
-export const FMTDI = 'Факультет ТУ и ЦИ';
-export const ICTF = 'Факультет НХиТ';
-export const OCTF = 'Факультет ОХиТ';
-export const HCC = 'ВХK';
-
 export const ISUCT_SHEDULE_API = 'https://forms.isuct.ru/timetable/rvuzov';
 
-export const FACULTIES = [
-  FMTDI,
-  ICTF,
-  OCTF,
-  HCC,
-];
+export const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+
+export const week_string = {
+  1: 'Вторая',
+  2: 'Первая',
+}

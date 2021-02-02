@@ -20,9 +20,16 @@ CREATE TABLE Users(
   FOREIGN KEY (group_id) REFERENCES Groups (id)
 );
 
-CREATE TABLE Shedule(
+CREATE TABLE Lessons(
   id SERIAL PRIMARY KEY,
   group_id INTEGER,
   FOREIGN KEY (group_id) REFERENCES Groups (id),
-  Shedule TEXT
+  subject VARCHAR(255),
+  type VARCHAR(255),
+  time VARCHAR(255),
+  date VARCHAR(255),
+  weekday INTEGER,
+  week INTEGER,
+  audiences VARCHAR(255),
+  teachers VARCHAR(255)
 );
