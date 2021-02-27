@@ -1,6 +1,7 @@
+import moment from "moment";
 import db from "../../db";
 import { days, week_string } from "../const";
-import { API_LESSON, Lesson, User } from "../interfaces";
+import { API_LESSON, Lesson } from "../interfaces";
 
 export const getAllLesonsByCondition = async (condition: string) => {
   return await db.query(`SELECT * FROM lessons WHERE ${condition} ORDER BY time ASC`);
@@ -9,19 +10,13 @@ export const getAllLesonsByCondition = async (condition: string) => {
 export const getShedule = async (groupId: number, offset: number = 0) => {
   let shedule = ''
 
-  const weekday = new Date().getDay() + (offset % 7);
+  const momentDateTime = moment().utcOffset(3)
+  const week = momentDateTime.week() % 2 ? 1 : 2;
+  const weekday = momentDateTime.day() + (offset % 7);
 
   if (weekday === 0) {
     return 'Выходной, можно отдохнуть';
   }
-
-  const currentDateTime = new Date();
-  const startTimeOfCurrentYear = (new Date(currentDateTime.getFullYear(), 0, 1)).getTime();
-  const currentTime = currentDateTime.getTime();
-  const pastTimeOfStartCurrentYear = currentTime - startTimeOfCurrentYear;
-  const hourOfMillisecs = 3600000;
-  const hoursOfOneWeek = 168;
-  const week = Math.floor(pastTimeOfStartCurrentYear / hourOfMillisecs / hoursOfOneWeek) % 2 ? 1 : 2;
   
   shedule = `${week_string[week]} неделя, ${days[weekday]}\n\n`;
 

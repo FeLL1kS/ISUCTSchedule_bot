@@ -25,6 +25,7 @@ function init() {
   });
 
   bot.on('text', async (ctx) => {
+    // Получение пользователя
     let user = await getUserByTelegramId(ctx.message?.from?.id);
     if (!user) {
       if (ctx && ctx.message && ctx.message.from) {
@@ -38,17 +39,21 @@ function init() {
       };
     };
 
+    // Сменить группу
     if (user && ctx.message?.text === 'Сменить группу') {
       user.group = null;
       await updateUser(user);
     }
     
+    // Сменить факультет
     if (user && ctx.message?.text === 'Сменить факультет') {
       user.group = null;
       user.faculty = null;
       await updateUser(user);
     }
   
+
+    // Выбор факультета
     if (user && user.faculty === null) {
       let faculties = (await getAllFaculties()).rows.map(faculty => faculty['name']);
 
@@ -68,6 +73,8 @@ function init() {
       }
     };
 
+
+    // Выбор группы
     if (user && user.group === null && user.faculty && user.faculty.id && ctx.message?.text) {
       let groups = (await getAllGroupsByFacultyId(user.faculty.id)).rows.map(group => group['course'] + '-' + group['group_number']);
       if (groups.indexOf(ctx.message?.text) !== -1) {
@@ -88,6 +95,7 @@ function init() {
       }
     }
 
+    // Запрос расписания на сегодня
     if (user && user.group && user.group.id !== null && ctx.message?.text === 'Расписание') {
       ctx.reply(await getShedule(user.group?.id), {
         reply_markup: {
@@ -105,6 +113,7 @@ function init() {
       return;
     }
 
+    // Запрос расписания на завтра
     if (user && user.group && user.group.id !== null &&  ctx.message?.text === 'Расписание на завтра') {
       ctx.reply(await getShedule(user.group?.id, 1), {
         reply_markup: {
