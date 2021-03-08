@@ -19,6 +19,10 @@ module.exports = {
           id: 1,
           name: 'telegram',
         },
+        {
+          id: 2,
+          name: 'vk',
+        },
       ],
       {}
     );

@@ -1,7 +1,7 @@
 {
-  "name": "isuctschedulebot",
+  "name": "universities-schedule-bot",
   "version": "1.0.0",
-  "description": "Bot transmitting ISUCT schedule",
+  "description": "Bot with universities schedule for social networks",
   "scripts": {
     "db:create": "npx sequelize-cli db:create",
     "db:drop": "npx sequelize-cli db:drop",
@@ -60,6 +60,7 @@
     "fastest-validator": "^1.10.0",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.1",
+    "node-vk-bot-api": "^3.4.0",
     "pg": "^8.5.1",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.5.0",
