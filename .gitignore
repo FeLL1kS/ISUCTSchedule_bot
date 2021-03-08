@@ -1,3 +1,6 @@
 .env
 /node_modules
-/dist
+/build
+yarn.lock
+.vscode
+docker-compose.prod.yml
