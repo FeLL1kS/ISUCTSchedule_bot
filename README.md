@@ -1,5 +1,15 @@
 # University Schedule bot
 
+# WARNING: THIS BOT IS NO LONGER MAINTAINED
+All development moved to private git to create shiny Schedulty_bot
+[Telegram](https://t.me/schedulty_bot)
+[VK](https://vk.me/schedulty_bot)
+
+# ВНИМАНИЕ: РАЗРАБОТКА ЭТОГО БОТА ПРЕКРАЩЕНА
+Вся разработка перехала на приватный гит, чтобы создать прекрасный Schedulty_bot
+[Telegram](https://t.me/schedulty_bot)
+[VK](https://vk.me/schedulty_bot)
+
 [wbydc rework]
 
 Бот расписания вузов для социальных сетей
